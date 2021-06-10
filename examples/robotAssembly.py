@@ -1,6 +1,6 @@
 from TensegrityPY import TensegrityRobot
 import numpy as np
-from scipy.optimize import fmin
+from scipy.optimize import minimize
 
 n = 12
 
@@ -40,7 +40,7 @@ cables[5][10] = 1
 cables[5][11] = 1
 
 
-"""Rods Configuration"""
+"""radiusods Configuration"""
 rods = np.zeros((n,n))
 
 rods[0][1] = 1
@@ -80,10 +80,13 @@ nodes_position  = np.hstack((nodes_position1, nodes_position2, nodes_position3))
 
 robot = TensegrityRobot(cables, rods, rest_lengths, stiffness_coef, nodes_position, active_nodes)
 
-next_step = fmin(robot.getPotentialEnergy, robot.nodes_position[robot.active_nodes],maxiter=10000000)
+next_step = minimize(robot.getPotentialEnergy, robot.nodes_position[robot.active_nodes]).x
 
 next_step = np.reshape(next_step, (3, n))
 
 print("\nNext stable position of the robot:\n")
 for i in range(next_step.shape[1]):
     print("Node {}: ".format(i)+str(next_step[:,i]))
+
+robot.nodes_position = next_step.T
+robot.draw()
